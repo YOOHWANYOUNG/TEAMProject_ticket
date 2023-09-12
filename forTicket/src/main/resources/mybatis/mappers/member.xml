@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+      PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.forTicket.member.dao.MemberDAO">	
+	<resultMap id="memResult" type="MemberVO">
+		<result property="mem_id" column="mem_id" />
+		<result property="pwd" column="pwd" />
+		<result property="mem_name" column="mem_name" />
+		<result property="email" column="email" />
+		<result property="phone" column="phone" />
+		<result property="post" column="post" />
+		<result property="addr1" column="addr1" />
+		<result property="addr2" column="addr2" />
+		<result property="b_number" column="b_number" />
+		<result property="b_name" column="b_name" />
+		<result property="b_phone" column="b_phone" />
+		<result property="checkbox" column="checkbox" />
+		<result property="type" column="type" />
+		<result property="joinDate" column="joinDate" />
+		<result property="api" column="api" />
+		<result property="snsid" column="snsid" />
+	</resultMap>
+
+	<select id="selectAllMemberList" resultMap="memResult"   >
+	<![CDATA[
+		select * from member order by joinDate desc			
+	]]>
+	</select>
+	
+	<insert id="insertMember"  parameterType="memberVO">
+	<![CDATA[
+		insert into member(type,mem_id,pwd,mem_name, email, phone, post, addr1, addr2, checkbox)
+		values(#{type},#{mem_id}, #{pwd},#{mem_name}, #{email},#{phone},#{post},#{addr1},#{addr2},#{checkbox})
+	]]>      
+	</insert>
+	
+		<insert id="insertbusiness"  parameterType="memberVO">
+	<![CDATA[
+		insert into member(type,mem_id,b_number,pwd,mem_name,b_name, email,phone, b_phone, post, addr1, addr2, checkbox)
+		values(#{type},#{mem_id},#{b_number},#{pwd},#{mem_name},#{b_name}, #{email},#{phone},#{b_phone},#{post},#{addr1},#{addr2},#{checkbox})
+	]]>      
+	</insert>
+	  
+	<update id="updateMember"  parameterType="memberVO">
+	<![CDATA[
+		 update member
+	     	set mem_name=#{mem_name}, pwd=#{pwd}, phone=#{phone}, email=#{email}, post=#{post} , addr1=#{addr1}, addr2=#{addr2}
+	     	where
+			mem_id=#{mem_id}
+	]]>      
+	  </update>
+	  
+	<update id="b_updateMember"  parameterType="memberVO">
+	<![CDATA[
+		update member
+	     	set b_name=#{b_name}, pwd=#{pwd},b_number = #{b_number}, b_phone=#{b_phone}, email=#{email}, post=#{post} , addr1=#{addr1}, addr2=#{addr2}
+	     	where
+			mem_id=#{mem_id}
+	]]>      
+	  </update> 
+	    
+	<delete id="deleteMember"  parameterType="String">
+	<![CDATA[
+		delete from  member
+		where
+		mem_id = #{mem_id}
+	]]>      
+	</delete>
+	 
+	<select id="loginById"  resultType="memberVO"   parameterType="memberVO" >
+	<![CDATA[
+		select * from member	
+		where mem_id = #{mem_id} and pwd=#{pwd}		
+	]]>
+	 </select>
+	 
+	 <select id="selectMemberById" resultType="memberVO" parameterType="String">
+	<![CDATA[
+		select * from member where mem_id = #{mem_id}
+	]]>
+	</select>
+	
+	<select id="selectMemberByPwd" resultMap="memResult" parameterType="int">
+	<![CDATA[
+		select * from member where pwd = #{pwd}
+	]]>
+	</select>
+	
+	<select id="selectLike" resultMap="memResult" parameterType="String">
+	<![CDATA[
+		select * from member
+		where name like CONCAT('%', #{mem_name}, '%')
+	]]>
+	</select>
+	
+	<select id="selectOverlappedID" parameterType="String" resultType="String">
+     <![CDATA[ 
+     	select if(count(*)=1, 'true', 'false')
+	   from member
+	   where mem_id = #{id}
+	   ]]>
+   </select>
+   
+    <!-- 핸드폰,회원 동일 비교 -->
+   <select id="findId" parameterType="map" resultType="string">
+    <![CDATA[
+        SELECT mem_id
+        FROM member
+        WHERE mem_name = #{mem_name}
+        AND phone = #{phone}
+    ]]>
+    </select>
+    
+    <!-- 이메일,회원 동일 비교 -->
+    <select id="findByMemberEmail" parameterType="String" resultType="String">
+    <![CDATA[
+        SELECT mem_id
+        FROM member
+        WHERE email = #{email}
+    ]]>
+    </select>
+
+    <!-- 회원 비밀번호 업데이트 -->
+    <update id="updatePassword" parameterType="map">
+    <![CDATA[
+        UPDATE member
+        SET pwd = #{pwd}
+        WHERE mem_id = #{mem_id}
+    ]]>
+    </update>
+    
+    <select id="m_Edit" parameterType="hashmap" resultType="com.forTicket.member.vo.MemberVO">
+    SELECT *
+    FROM member
+    WHERE mem_id = #{mem_id}
+</select>
+
+
+<select id="kakaoConnectionCheck" resultType="Map" parameterType="java.util.Map">
+    <![CDATA[
+    SELECT * FROM member
+    WHERE email = #{email}
+    ]]>
+</select>
+
+  	
+  	<select id="kakaoConnectionEmailCheck" resultType="memberVO" parameterType="java.util.Map" >
+		<![CDATA[
+		SELECT * from member
+		where email=#{email}  
+		]]>
+  	</select>
+	
+	 <insert id="insert_kakao"  parameterType="java.util.Map">
+		<![CDATA[
+		 insert into member(type,mem_id,b_number,pwd,mem_name,b_name, email,phone, b_phone, post, addr1, addr2, checkbox, api, snsid)
+		values(#{type},#{mem_id},#{b_number},#{pwd},#{mem_name},#{b_name}, #{email},#{phone},#{b_phone},#{post},#{addr1},#{addr2},#{checkbox},#{api},#{snsid})
+		]]>      
+	</insert>
+
+	
+
+<select id="kakaoLogin" resultType="memberVO" parameterType="java.util.Map">
+    <![CDATA[
+    SELECT * FROM member
+    WHERE mem_id = #{mem_id} AND pwd = #{pwd} AND api = #{flag}
+    ]]>
+</select>
+	
+
+    <update id="setKakaoConnection"  parameterType="java.util.Map">
+		<![CDATA[
+		 update member SET api =#{flag}, snsid =#{pwd} WHERE email =#{email}
+		]]>      
+	</update>
+	
+	<update id="setKakaoDisConnection"  parameterType="java.util.Map">
+		<![CDATA[
+		 update member SET api = NULL, snsid = NULL WHERE email =#{email}
+		]]>      
+	</update>
+	
+</mapper>

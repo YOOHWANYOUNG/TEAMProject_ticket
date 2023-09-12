@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.forTicket.theater.dao.TheaterDAO">
+	<resultMap id="theaterResult" type="theaterVO">
+		<result property="theater_id" column="theater_id" />
+		<result property="theater_name" column="theater_name" />
+		<result property="theater_detail" column="theater_detail" />
+		<result property="theater_address" column="theater_address" />
+		<result property="theater_image" column="theater_image" />
+		<result property="theater_creDate" column="theater_creDate" />
+		<result property="theater_cat" column="theater_cat" />
+		<result property="theater_seats" column="theater_seats" />
+		<result property="theater_lat" column="theater_lat" />
+		<result property="theater_long" column="theater_long" />
+	</resultMap>
+	
+	<!-- 공연장 목록 -->
+	<select id="selectAllTheaterList" resultMap="theaterResult">
+		<![CDATA[
+			SELECT * FROM theater ORDER BY theater_id DESC
+		]]>
+	</select>
+	
+	<!-- 공연장 정보 -->
+	<select id="selectTheaterInfo" resultType="theaterVO" parameterType="int">
+		<![CDATA[
+			SELECT * FROM theater WHERE theater_id=#{theater_id}
+		]]>
+	</select>
+	
+	<!-- 공연장 이름+주소로 공연장 아이디 찾기 -->
+	<select id="selectIdFromData" resultType="int" parameterType="java.util.Map">
+		<![CDATA[
+			SELECT theater_id FROM theater WHERE theater_name=#{theater_name} AND theater_address=#{theater_address}
+		]]>
+	</select>
+	
+	<!-- 공연장 이름으로 공연장 아이디 찾기 -->
+	<select id="selectIdFromName" resultType="int" parameterType="String">
+		<![CDATA[
+			SELECT theater_id FROM theater WHERE theater_name=#{theater_name}
+		]]>
+	</select>
+
+	<!-- 공연장 등록 -->
+	<insert id="insertTheater" parameterType="java.util.Map">
+		<![CDATA[
+			INSERT INTO theater(theater_name, theater_detail, theater_address, theater_image, theater_cat, theater_seats) VALUES(#{theater_name}, #{theater_detail}, #{theater_address}, #{theater_image}, #{theater_cat}, #{theater_seats})
+		]]>
+	</insert>
+
+	<!-- 공연장 수정 -->
+	<update id="updateTheater" parameterType="java.util.Map">
+		<![CDATA[
+			UPDATE theater SET theater_name=#{theater_name}, theater_detail=#{theater_detail}, theater_address=#{theater_address}, theater_image=#{theater_image}, theater_cat=#{theater_cat}, theater_seats=#{theater_seats}, theater_lat=#{theater_lat}, theater_long=#{theater_long} WHERE theater_id=#{theater_id}
+		]]>
+	</update>
+	
+	<!-- 공연장 삭제 -->
+	<delete id="deleteTheater" parameterType="int">
+		<![CDATA[
+			DELETE FROM theater WHERE theater_id=#{theater_id}
+		]]>
+	</delete>
+	
+</mapper>

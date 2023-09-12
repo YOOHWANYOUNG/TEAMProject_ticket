@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.forTicket.goods.dao.GoodsDAO">
+	<resultMap id="goodsResult" type="goodsVO">
+		<result property="goods_id" column="goods_id" jdbcType="INTEGER"/>
+		<result property="goods_type" column="goods_type" />
+		<result property="goods_genre" column="goods_genre" />
+		<result property="goods_name" column="goods_name" />
+		<result property="goods_startDate" column="goods_startDate" jdbcType="DATE"/>
+		<result property="goods_endDate" column="goods_endDate" jdbcType="DATE"/>
+		<result property="goods_runningTime" column="goods_runningTime" />
+		<result property="goods_age" column="goods_age" />
+		<result property="goods_price" column="goods_price" jdbcType="INTEGER"/>
+		<result property="goods_discount" column="goods_discount" jdbcType="INTEGER"/>
+		<result property="goods_info" column="goods_info" />
+		<result property="goods_notice" column="goods_notice" />
+		<result property="goods_place" column="goods_place" />
+		<result property="goods_creDate" column="goods_creDate" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+		<result property="mem_id" column="mem_id" />
+		<result property="goods_seats" column="goods_seats"/>
+		<result property="goods_fileName" column="fileName" />
+	</resultMap>
+
+	<resultMap id="imageResult" type="G_imageFileVO">
+		<result property="image_id" column="image_id" />
+		<result property="goods_id" column="goods_id" />
+		<result property="fileName" column="fileName" />
+		<result property="fileType" column="fileType" />
+		<result property="reg_id" column="reg_id" />
+	</resultMap>
+	
+	<resultMap id="communityResult" type="CommunityVO">
+		<result property="c_No" column="c_No" />
+		<result property="order_No" column="order_No" />
+		<result property="mem_id" column="mem_id" />
+		<result property="c_title" column="c_title" />
+		<result property="c_content" column="c_content" />
+		<result property="c_date" column="c_date" />
+		<result property="star" column="star" />
+		<result property="imageFileName" column="imageFileName" />
+		<result property="c_reply" column="c_reply" />
+		<result property="c_replydate" column="c_replydate" />
+		<result property="goods_id" column="goods_id" />
+	</resultMap>
+	
+	<select id="selectGoodsList" resultMap="goodsResult">
+	    <![CDATA[
+			select t.* from( select g.*,d.fileName from goods g, goods_detail_images d
+			where g.goods_id=d.goods_id and d.filetype='main_image'
+			order by g.goods_creDate desc) t
+    	]]>
+	</select>
+	
+	<select id="selectAdminGoodsList" resultMap="goodsResult"
+		parameterType="java.util.Map">
+			select * from (
+			select  ROW_NUMBER() OVER (ORDER BY goods_creDate DESC) as recNum, ttt.*
+			from (select * from goods where  date_format(goods_creDate,'%Y-%m-%d')  between #{beginDate} and #{endDate}
+				<if test="search_type=='goods_id' and  search_type != null">
+					AND goods_id=#{search_word}
+				</if>
+				<if test="search_type=='goods_name' and  search_type != null">
+					AND goods_name=#{search_word}
+				</if>
+				<if test="search_type=='goods_genre' and  search_type != null">
+					AND goods_genre=#{search_word}
+				</if>
+			order by goods_creDate desc ) as ttt ) as tttt where
+			recNum between (#{section}-1)*100+ (#{pageNum}-1)*10+1 and (#{section}-1)*100+(#{pageNum})*10
+	</select>
+	
+	<select id="selectBusinessGoodsList" resultMap="goodsResult"
+		parameterType="java.util.Map">
+			select * from (
+			select  ROW_NUMBER() OVER (ORDER BY goods_creDate DESC) as recNum, ttt.*
+			from (select * from goods where mem_id=#{mem_id} AND date_format(goods_creDate,'%Y-%m-%d')  between #{beginDate} and #{endDate}
+				<if test="search_type=='goods_id' and  search_type != null">
+					AND goods_id=#{search_word}
+				</if>
+				<if test="search_type=='goods_name' and  search_type != null">
+					AND goods_name=#{search_word}
+				</if>
+				<if test="search_type=='goods_genre' and  search_type != null">
+					AND goods_genre=#{search_word}
+				</if>
+			order by goods_creDate desc ) as ttt ) as tttt where
+			recNum between (#{section}-1)*100+ (#{pageNum}-1)*10+1 and (#{section}-1)*100+(#{pageNum})*10
+	</select>
+
+	<select id="selectGoodsDetail" resultMap="goodsResult"	parameterType="int">
+	    <![CDATA[
+		    select g.*, d.fileName from goods g, goods_detail_images d
+	        where g.goods_id=d.goods_id
+	        and d.filetype='main_image'
+	        and g.goods_id=#{goods_id}
+	        order by g.goods_id
+    	]]>
+	</select>
+	
+	<select id="selectGoodsNameById" resultType="String" parameterType="int">
+		select goods_name from goods where goods_id=#{goods_id}
+	</select>
+	
+	<select id="selectGoodsDisc" resultType="int" parameterType="int">
+		select goods_discount from goods where goods_id=#{goods_id}
+	</select>
+	
+	<select id="selectGoodsNo" resultType="int" parameterType="java.util.Map">
+		<![CDATA[
+			SELECT goods_id FROM goods WHERE mem_id=#{mem_id} AND goods_name=#{goods_name}
+		]]>
+	</select>
+	
+	<select id="selectGoodsById" resultMap="goodsResult" parameterType="String">
+		<![CDATA[
+			SELECT * FROM goods WHERE mem_id=#{mem_id}
+		]]>
+	</select>
+
+	<insert id="insertGoods" parameterType="java.util.Map">
+	    <![CDATA[
+		   insert into goods (goods_type, goods_genre, goods_name, goods_startDate, goods_endDate, goods_runningTime, goods_age, goods_price, goods_discount, goods_info, goods_notice, goods_place, mem_id, goods_seats)
+		   		values (#{goods_type}, #{goods_genre}, #{goods_name}, #{goods_startDate}, #{goods_endDate}, #{goods_runningTime}, #{goods_age}, #{goods_price}, #{goods_discount}, #{goods_info}, #{goods_notice}, #{goods_place}, #{mem_id}, #{goods_seats})
+		]]>
+	</insert>
+	
+	<update id="updateGoods" parameterType="java.util.Map">
+		<![CDATA[
+			update goods set goods_type=#{goods_type}, goods_genre=#{goods_genre}, goods_name=#{goods_name}, goods_startDate=#{goods_startDate}, goods_endDate=#{goods_endDate}, goods_runningTime=#{goods_runningTime}, goods_age=#{goods_age}, goods_price=#{goods_price}, goods_discount=#{goods_discount}, goods_info=#{goods_info}, goods_notice=#{goods_notice}, goods_place=#{goods_place}
+			where goods_id=#{goods_id}
+		]]>
+	</update>
+	
+	<update id="updateDisc" parameterType="java.util.Map">
+		<![CDATA[
+			update goods set goods_discount=#{goods_discount}
+			where goods_id=#{goods_id}
+		]]>
+	</update>
+	
+	<delete id="deleteGoods" parameterType="int">
+		  <![CDATA[
+		  delete from goods where goods_id=#{goods_id}
+		  ]]>
+	</delete>
+
+	<select id="selectGoodsImageFileList" resultMap="imageResult"
+		parameterType="int">
+	    <![CDATA[
+		    	select * from  goods_detail_images 
+		    	where  
+			    goods_id=#{goods_id} and filetype!='main_image'
+			    order by image_id asc
+    	]]>
+	</select>
+
+	<select id="selectGoodsImageFileList_2" resultMap="imageResult"
+		parameterType="int">
+	    <![CDATA[
+		    	select * from  goods_detail_images 
+		    	where  
+			    goods_id=#{goods_id}
+			    order by image_id asc
+    	]]>
+	</select>
+	
+	<insert id="insertGoodsImageFile" parameterType="G_imageFileVO">
+	    <![CDATA[
+		   insert into goods_detail_images (goods_id, fileName, fileType, reg_id)
+			values(#{goods_id}, #{fileName}, #{fileType}, #{reg_id} )
+		]]>
+	</insert>
+
+	<update id="updateGoodsImage" parameterType="g_imageFileVO">
+		<![CDATA[
+			update goods_detail_images
+			set fileName=#{fileName}
+			where	 
+			goods_id=#{goods_id} and image_id=#{image_id} and fileType=#{fileType}
+		]]>
+	</update>
+	
+	<delete id="deleteGoodsImage" parameterType="int">
+		  <![CDATA[
+		  delete from goods_detail_images
+		  where image_id=#{image_id}
+		  ]]>
+	</delete>
+	
+	<delete id="deleteAllGoodsImage" parameterType="int">
+		  <![CDATA[
+		  delete from goods_detail_images
+		  where goods_id=#{goods_id}
+		  ]]>
+	</delete>
+	
+	<!-- 커뮤니티 별점 평균 -->
+	<select id="avgStar" resultType="Double" parameterType="int">
+	    <![CDATA[
+		    select avg(star) as avg from community where goods_id=#{goods_id};
+    	]]>
+	</select>
+	
+	<!-- 커뮤니티 카운트 -->
+		<select id="countStar" resultType="int" parameterType="int">
+	    <![CDATA[
+		    SELECT COUNT(star) FROM community where goods_id=#{goods_id};
+    	]]>
+	</select>
+	
+	<!--상품 리뷰 불러오기 -->
+	<select id="reviewList" resultMap="communityResult"  parameterType="java.util.List">
+		<![CDATA[
+		SELECT * FROM community where goods_id=#{goods_id} order by c_date desc					
+		]]>      
+	</select>
+	
+	<!-- 메인페이지 상품 리스트 -->
+	<select id="mainListGoods" parameterType="String" resultMap="goodsResult"   >
+        <![CDATA[
+			select t.*
+			from(
+			select g.*,d.fileName from goods g, goods_detail_images d
+			where g.goods_id=d.goods_id 
+			and d.filetype='main_image'
+			and goods_type=#{goods_type}
+			order by g.goods_creDate desc)  t limit 4;
+	    ]]>
+
+	</select> 
+	
+		
+<!-- 아래 추가 부분 -->	
+	
+<select id="selectGoodsBySearchWord" resultMap="goodsResult"
+		parameterType="String">
+     <![CDATA[
+	select goods.*, goods_detail_images.fileName from goods, goods_detail_images
+where goods.goods_id=goods_detail_images.goods_id
+and goods_detail_images.filetype='main_image'
+and goods.goods_name like concat('%',#{searchWord},'%')
+order by goods.goods_creDate desc
+		]]>
+	</select>
+
+	<select id="selectKeywordSearch" resultType="String"
+		parameterType="String">
+	    <![CDATA[
+        select goods_name from goods 
+        where goods_name like  concat('%',#{keyword},'%')
+        order by goods_creDate desc
+		]]>
+
+
+	</select>
+	
+	<select id="totalGoods" resultType="int">
+		SELECT count(goods_id) FROM goods
+	</select>
+	
+	<select id="totalGoodsById" resultType="int" parameterType="String">
+		SELECT count(goods_id) FROM goods WHERE mem_id=#{mem_id}
+
+	</select>
+</mapper>

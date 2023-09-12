@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.forTicket.community.dao.CommunityDAO">
+	<resultMap id="communityResult" type="CommunityVO">
+		<result property="c_No" column="c_No" />
+		<result property="order_No" column="order_No" />
+		<result property="mem_id" column="mem_id" />
+		<result property="c_title" column="c_title" />
+		<result property="c_content" column="c_content" />
+		<result property="c_date" column="c_date" />
+		<result property="star" column="star" />
+		<result property="imageFileName" column="imageFileName" />
+		<result property="c_reply" column="c_reply" />
+		<result property="c_replydate" column="c_replydate" />
+		<result property="goods_id" column="goods_id" />
+	</resultMap>
+	
+	<resultMap id="orderResult" type="OrderVO">
+		<result property="order_No" column="order_No" />
+		<result property="goods_id" column="goods_id" />
+		<result property="mem_id" column="mem_id" />
+		<result property="s_no" column="s_no" />
+		<result property="orderNum" column="orderNum" />
+		<result property="ordersit" column="ordersit" />
+		<result property="orderName" column="orderName" />
+		<result property="orderPhone" column="orderPhone" />
+		<result property="orderEmail" column="orderEmail" />
+		<result property="orderPay" column="orderPay" />
+		<result property="orderCheck" column="orderCheck" />
+		<result property="orderStatus" column="orderStatus" />
+		<result property="orderTicketing" column="orderTicketing" />
+		<result property="orderDate" column="orderDate" />
+		<result property="order_price" column="order_price" />
+		<result property="goods_name" column="goods_name" />
+	</resultMap>
+	
+	<!--회원 커뮤니티 페이지 -->
+	<select id="u_commulist" resultMap="communityResult"  parameterType="java.util.HashMap">
+		<![CDATA[
+		select * from (
+			select ROW_NUMBER() OVER (ORDER BY c_date DESC) as recNum, table1.*
+			from (
+				SELECT 
+					*
+				FROM community
+				order by c_date desc
+			 	) as table1
+				) as table2				
+			where				
+		recNum between (#{section}-1)*100+ (#{pageNum}-1)*10+1 and (#{section}-1)*100+(#{pageNum})*10		
+		]]>      
+	</select>
+		
+	<!-- 리뷰화면이동 -->
+	<select id="review" resultType="OrderVO" parameterType="int">
+		<![CDATA[
+			select * from `order` where order_No = #{order_No}
+ 		]]>  
+	</select>
+
+	<!-- 리뷰 추가 -->
+	<insert id="add_review"  parameterType="java.util.Map">
+		<![CDATA[
+			insert into
+			community(mem_id, c_title, c_content, star, order_No, imageFileName, goods_id)
+			values(#{mem_id}, #{c_title}, #{c_content},#{star}, #{order_No}, #{imageFileName}, #{goods_id})
+		]]>      
+	</insert>
+	
+	<!-- 리뷰 번호 확인 -->
+	<select id="selectReviewNO" resultType="int">
+		<![CDATA[
+		select ifnull(max(c_No), 0)+1 from community
+		]]>   
+	</select>
+	
+	<!-- 답변페이지 이동 -->
+	<select id="c_No" resultType="CommunityVO" parameterType="int">
+		<![CDATA[
+			select * from community
+			where
+			c_No=#{c_No}
+		]]>	
+	</select>
+	
+	<!-- 답변 추가 -->
+	<update id="update_reply" parameterType="CommunityVO">
+		<![CDATA[
+			update 
+			community
+			set
+			c_reply = #{c_reply}
+			where
+			c_No = #{c_No}
+		]]>      
+	</update>
+	
+	<!-- 1:1 글 삭제 -->
+	<delete id="delete" parameterType="int">
+		<![CDATA[
+		delete from community where c_No = #{c_No}
+		]]>  
+	</delete>
+	
+	<select id="totalCommNum" resultType="int">
+		SELECT count(c_No) FROM community
+	</select>
+
+</mapper>

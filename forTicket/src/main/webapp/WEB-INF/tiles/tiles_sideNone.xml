@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC
+"-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+"http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+
+
+<tiles-definitions>
+	<definition name="baseLayout" template="/WEB-INF/views/common/layout.jsp">
+		<put-attribute name="title" value=""/>
+		<put-attribute name="header" value="/WEB-INF/views/common/header.jsp"/>
+		<put-attribute name="side" value=""/>
+		<put-attribute name="body" value=""/>
+		<put-attribute name="footer" value="/WEB-INF/views/common/footer.jsp"/>
+	</definition>
+	<!-- 메인화면 -->
+		<!-- main -->
+		<definition name="/main" extends="baseLayout">
+			<put-attribute name="title" value="메인페이지" />
+			<put-attribute name="body" value="/WEB-INF/views/main.jsp" />
+		</definition>
+		<!-- main search -->
+		<definition name="/mainSearch" extends="baseLayout">
+			<put-attribute name="title" value="메인페이지 검색결과" />
+			<put-attribute name="body" value="/WEB-INF/views/mainSearch.jsp" />
+		</definition>
+	
+	<!-- 회원관련 -->
+		<!-- 로그인 -->
+		<definition name="/member/loginForm" extends="baseLayout">
+			<put-attribute name="title" value="로그인" />
+			<put-attribute name="body" value="/WEB-INF/views/member/loginForm.jsp" />
+		</definition>
+		<!-- 회원가입 선택 -->
+		<definition name="/member/join" extends="baseLayout">
+			<put-attribute name="title" value="회원선택" />
+			<put-attribute name="body" value="/WEB-INF/views/member/join.jsp" />
+		</definition>
+		<!--일반회원 회원가입 -->
+		<definition name="/member/memberForm" extends="baseLayout">
+			<put-attribute name="title" value="회원가입" />
+			<put-attribute name="body" value="/WEB-INF/views/member/memberForm.jsp" />
+		</definition>
+		<!--사업주 회원가입 -->
+		<definition name="/member/businessForm" extends="baseLayout">
+			<put-attribute name="title" value="회원가입" />
+			<put-attribute name="body" value="/WEB-INF/views/member/businessForm.jsp" />
+		</definition>
+		<!-- 회원 정보 수정창-->
+		<definition name="/community/adminCommunity" extends="baseLayout">
+			<put-attribute name="title" value="회원 정보 수정창" />
+			<put-attribute name="body" value="/WEB-INF/views/community/adminCommunity.jsp" />
+		</definition>
+		<!-- 아이디찾기-->
+		<definition name="/member/findId" extends="baseLayout">
+			<put-attribute name="title" value="아이디찾기" />
+			<put-attribute name="body" value="/WEB-INF/views/member/findId.jsp" />
+		</definition>
+		<!-- 아이디찾기결과창-->
+		<definition name="/member/findIdResult" extends="baseLayout">
+			<put-attribute name="title" value="아이디찾기결과창" />
+			<put-attribute name="body" value="/WEB-INF/views/member/findIdResult.jsp" />
+		</definition>
+	
+	<!-- 공연장 관련 -->
+		<!-- 공연장 목록-->
+		<definition name="/theater/listTheater" extends="baseLayout">
+			<put-attribute name="title" value="공연장 목록" />
+			<put-attribute name="body" value="/WEB-INF/views/theater/listTheater.jsp" />
+		</definition>
+		<!-- 공연장 상세-->
+		<definition name="/theater/detailTheater" extends="baseLayout">
+			<put-attribute name="title" value="공연장 상세" />
+			<put-attribute name="body" value="/WEB-INF/views/theater/detailTheater.jsp" />
+		</definition>
+		<!-- 공연장 등록-->
+		<definition name="/theater/modTheaterForm" extends="baseLayout">
+			<put-attribute name="title" value="공연장 등록" />
+			<put-attribute name="body" value="/WEB-INF/views/theater/modTheaterForm.jsp" />
+		</definition>
+		<!-- 공연장 수정-->
+		<definition name="/theater/theaterForm" extends="baseLayout">
+			<put-attribute name="title" value="공연장 수정" />
+			<put-attribute name="body" value="/WEB-INF/views/theater/theaterForm.jsp" />
+		</definition>
+	
+	<!-- 예매 관련 -->
+		<!-- 상품 예매(좌석 지정) -->
+		<definition name="/order/order_seat" extends="baseLayout">
+			<put-attribute name="title" value="상품 예매(좌석 지정)" />
+			<put-attribute name="body" value="/WEB-INF/views/order/order_seat.jsp" />
+		</definition>
+		<!-- 상품 예매(좌석 미지정) -->
+		<definition name="/order/order_seatNone" extends="baseLayout">
+			<put-attribute name="title" value="상품 예매(좌석 미지정)" />
+			<put-attribute name="body" value="/WEB-INF/views/order/order_seatNone.jsp" />
+		</definition>
+		<!-- 결제 화면-->
+		<definition name="/order/ticketReservation" extends="baseLayout">
+			<put-attribute name="title" value="결제 화면" />
+			<put-attribute name="body" value="/WEB-INF/views/order/ticketReservation.jsp" />
+		</definition>
+		<!-- 결제 완료 화면-->
+		<definition name="/order/reservationSuccess" extends="baseLayout">
+			<put-attribute name="title" value="결제 완료 화면" />
+			<put-attribute name="body" value="/WEB-INF/views/order/reservationSuccess.jsp" />
+		</definition>
+	
+	<!-- 이벤트 관련 -->
+		<!-- 이벤트 목록(사용자)-->
+		<definition name="/event/listEvent" extends="baseLayout">
+			<put-attribute name="title" value="이벤트 목록(사용자)" />
+			<put-attribute name="body" value="/WEB-INF/views/event/listEvent.jsp" />
+		</definition>
+		<!-- 이벤트 목록(사업자)-->
+		<definition name="/event/B_listEvent" extends="baseLayout">
+			<put-attribute name="title" value="이벤트 목록(사업자)" />
+			<put-attribute name="body" value="/WEB-INF/views/event/B_listEvent.jsp" />
+		</definition>
+		<!-- 이벤트 목록(관리자)-->
+		<definition name="/event/A_listEvent" extends="baseLayout">
+			<put-attribute name="title" value="이벤트 목록(관리자)" />
+			<put-attribute name="body" value="/WEB-INF/views/event/A_listEvent.jsp" />
+		</definition>
+		<!-- 이벤트 상세-->
+		<definition name="/event/detailEvent" extends="baseLayout">
+			<put-attribute name="title" value="이벤트 상세" />
+			<put-attribute name="body" value="/WEB-INF/views/event/detailEvent.jsp" />
+		</definition>
+		<!-- 이벤트 등록-->
+		<definition name="/event/addEventForm" extends="baseLayout">
+			<put-attribute name="title" value="이벤트 등록" />
+			<put-attribute name="body" value="/WEB-INF/views/event/addEventForm.jsp" />
+		</definition>
+		<!-- 이벤트 수정-->
+		<definition name="/event/modEventForm" extends="baseLayout">
+			<put-attribute name="title" value="이벤트 수정" />
+			<put-attribute name="body" value="/WEB-INF/views/event/modEventForm.jsp" />
+		</definition>
+	
+	<!-- 상품 관련 -->
+		<!-- 상품 목록(사용자)-->
+		<definition name="/goods/listGoods" extends="baseLayout">
+			<put-attribute name="title" value="상품 목록(사용자)" />
+			<put-attribute name="body" value="/WEB-INF/views/goods/listGoods.jsp" />
+		</definition>
+		<!-- 상품 상세-->
+		<definition name="/goods/detailGoods" extends="baseLayout">
+			<put-attribute name="title" value="상품 상세" />
+			<put-attribute name="body" value="/WEB-INF/views/goods/detailGoods.jsp" />
+		</definition>
+		<!-- 상품 관리 목록(사업자, 관리자)-->
+		<definition name="/goods/a_listGoods" extends="baseLayout">
+			<put-attribute name="title" value="상품 관리 목록(사업자, 관리자)" />
+			<put-attribute name="body" value="/WEB-INF/views/goods/a_listGoods.jsp" />
+		</definition>
+		<!-- 상품 등록(사업자)-->
+		<definition name="/goods/addGoodsForm" extends="baseLayout">
+			<put-attribute name="title" value="상품 등록(사업자)" />
+			<put-attribute name="body" value="/WEB-INF/views/goods/addGoodsForm.jsp" />
+		</definition>
+		<!-- 상품 수정(사업자, 관리자)-->
+		<definition name="/goods/modGoodsForm" extends="baseLayout">
+			<put-attribute name="title" value="상품 수정(사업자, 관리자)" />
+			<put-attribute name="body" value="/WEB-INF/views/goods/modGoodsForm.jsp" />
+		</definition>
+
+
+	<!-- 연극 목록-->
+	<definition name="/goods/listDrama" extends="baseLayout">
+		<put-attribute name="title" value="연극 목록" />
+		<put-attribute name="body" value="/WEB-INF/views/goods/listDrama.jsp" />
+	</definition>
+	
+	<!-- 상품 상세-->
+	<definition name="/goods/detailGoods" extends="baseLayout">
+		<put-attribute name="title" value="상품 상세" />
+		<put-attribute name="body" value="/WEB-INF/views/goods/detailGoods.jsp" />
+	</definition>
+	
+	<!-- 공연장 목록-->
+	<definition name="/theater/listTheater" extends="baseLayout">
+		<put-attribute name="title" value="공연장 목록" />
+		<put-attribute name="body" value="/WEB-INF/views/theater/listTheater.jsp" />
+	</definition>
+	
+	<!-- 공연장 상세-->
+	<definition name="/theater/detailTheater" extends="baseLayout">
+		<put-attribute name="title" value="공연장 상세" />
+		<put-attribute name="body" value="/WEB-INF/views/theater/detailTheater.jsp" />
+	</definition>
+	
+	<!-- 공연장 등록-->
+	<definition name="/theater/modTheaterForm" extends="baseLayout">
+		<put-attribute name="title" value="공연장 등록" />
+		<put-attribute name="body" value="/WEB-INF/views/theater/modTheaterForm.jsp" />
+	</definition>
+	
+	<!-- 공연장 수정-->
+	<definition name="/theater/theaterForm" extends="baseLayout">
+		<put-attribute name="title" value="공연장 수정" />
+		<put-attribute name="body" value="/WEB-INF/views/theater/theaterForm.jsp" />
+	</definition>
+	
+	<!-- 상품 예매(좌석 지정) -->
+	<definition name="/order/order_seat" extends="baseLayout">
+		<put-attribute name="title" value="상품 예매(좌석 지정)" />
+		<put-attribute name="body" value="/WEB-INF/views/order/order_seat.jsp" />
+	</definition>
+	
+	<!-- 상품 예매(좌석 미지정) -->
+	<definition name="/order/order_seatNone" extends="baseLayout">
+		<put-attribute name="title" value="상품 예매(좌석 미지정)" />
+		<put-attribute name="body" value="/WEB-INF/views/order/order_seatNone.jsp" />
+	</definition>
+	
+	<!-- 결제 화면-->
+	<definition name="/order/ticketReservation" extends="baseLayout">
+		<put-attribute name="title" value="결제 화면" />
+		<put-attribute name="body" value="/WEB-INF/views/order/ticketReservation.jsp" />
+	</definition>
+	
+	<!-- 결제 완료 화면-->
+	<definition name="/order/reservationSuccess" extends="baseLayout">
+		<put-attribute name="title" value="결제 완료 화면" />
+		<put-attribute name="body" value="/WEB-INF/views/order/reservationSuccess.jsp" />
+	</definition>
+	
+	<!-- 회원 정보 수정창-->
+	<definition name="/community/adminCommunity" extends="baseLayout">
+		<put-attribute name="title" value="회원 정보 수정창" />
+		<put-attribute name="body" value="/WEB-INF/views/community/adminCommunity.jsp" />
+	</definition>
+	
+	<!-- 아이디찾기-->
+	<definition name="/member/findId" extends="baseLayout">
+		<put-attribute name="title" value="아이디찾기" />
+		<put-attribute name="body" value="/WEB-INF/views/member/findId.jsp" />
+	</definition>
+	
+	<!-- 아이디찾기결과창-->
+	<definition name="/member/findIdResult" extends="baseLayout">
+		<put-attribute name="title" value="아이디찾기결과창" />
+		<put-attribute name="body" value="/WEB-INF/views/member/findIdResult.jsp" />
+	</definition>
+	
+
+	<!-- 환불 완료 화면-->
+	<definition name="/order/refundSuccess" extends="baseLayout">
+		<put-attribute name="title" value="환불 완료 화면" />
+		<put-attribute name="body" value="/WEB-INF/views/order/refundSuccess.jsp" />
+	</definition>
+	
+	
+	<!-- 커뮤니티 -->
+		<!-- 회원 커뮤니티화면 -->
+		<definition name="/community/u_Commu" extends="baseLayout">
+			<put-attribute name="title" value="관리자 커뮤니티" />
+			<put-attribute name="body" value="/WEB-INF/views/community/u_Commu.jsp" />
+		</definition>
+		<!-- 회원 커뮤니티 작성 화면 -->
+		<definition name="/community/reply" extends="baseLayout">
+			<put-attribute name="title" value="리뷰 작성" />
+			<put-attribute name="body" value="/WEB-INF/views/community/reply.jsp" />
+		</definition>
+		
+	<!-- 스케줄 관련 -->
+		<!-- 스케줄 등록(사업자, 관리자)-->
+		<definition name="/schedule/addScheduleForm" extends="baseLayout">
+			<put-attribute name="title" value="스케줄 등록" />
+			<put-attribute name="body" value="/WEB-INF/views/schedule/addScheduleForm.jsp" />
+		</definition>
+		<!-- 스케줄 관리(사업자, 관리자)-->
+		<definition name="/schedule/listSchedule" extends="baseLayout">
+			<put-attribute name="title" value="스케줄 등록" />
+			<put-attribute name="body" value="/WEB-INF/views/schedule/listSchedule.jsp" />
+		</definition>
+</tiles-definitions>
+
+

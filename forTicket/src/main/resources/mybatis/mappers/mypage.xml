@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.forTicket.mypage.dao.MypageDAO">	
+	<resultMap id="memResult" type="MemberVO">
+		<result property="mem_id" column="mem_id" />
+		<result property="pwd" column="pwd" />
+		<result property="mem_name" column="mem_name" />
+		<result property="email" column="email" />
+		<result property="phone" column="phone" />
+		<result property="post" column="post" />
+		<result property="addr1" column="addr1" />
+		<result property="addr2" column="addr2" />
+		<result property="b_number" column="b_number" />
+		<result property="b_name" column="b_name" />
+		<result property="b_phone" column="b_phone" />
+		<result property="checkbox" column="checkbox" />
+		<result property="type" column="type" />
+		<result property="joinDate" column="joinDate" />
+	</resultMap>		
+	
+	<resultMap id="orderResult" type="OrderVO">
+		<result property="order_No" column="order_No" />
+		<result property="goods_id" column="goods_id" />
+		<result property="mem_id" column="mem_id" />
+		<result property="s_no" column="s_no" />
+		<result property="ordersit" column="ordersit" />
+		<result property="orderName" column="orderName" />
+		<result property="orderPhone" column="orderPhone" />
+		<result property="orderEmail" column="orderEmail" />
+		<result property="orderPay" column="orderPay" />
+		<result property="orderCheck1" column="orderCheck1" />
+		<result property="orderCheck2" column="orderCheck2" />
+		<result property="orderStatus" column="orderStatus" />
+		<result property="orderTicketing" column="orderTicketing" />
+
+		<result property="totalPrice" column="totalPrice" />
+		<result property="goods_name" column="goods_name" />
+		<result property="goods_place" column="goods_place" />
+		<result property="totalQuantity" column="totalQuantity" />
+		<result property="goods_price" column="goods_price" />
+
+		<result property="receiver_name" column="receiver_name" />
+		<result property="goods_Date" column="goods_Date" />
+	</resultMap>
+	
+	<!-- 예매 내역 페이지 -->
+	<select id="myReservation" resultMap="orderResult"   parameterType="java.util.HashMap">
+		select * from (
+		select ROW_NUMBER() OVER (ORDER BY orderTicketing DESC) as recNum, table1.*
+		from (
+		select * 
+		from `order` 
+		where date_format(orderTicketing,'%Y-%m-%d') between #{beginDate} and #{endDate} 
+		and mem_id=#{mem_id}
+		<if test="search_type=='all' and  search_type != null" >
+			AND (goods_name=#{search_word} OR goods_Date=#{search_word} OR order_No=#{search_word})
+		</if>
+		<if test="search_type=='goods_name' and  search_type != null" >
+        	and goods_name=#{search_word}
+		</if>
+		<if test="search_type=='goods_Date' and search_type != null">
+        	and goods_Date=#{search_word}
+		</if>
+		<if test="search_type=='order_No' and search_type != null">
+			and order_No=#{search_word}
+		</if>
+			order by orderTicketing desc
+			 ) as table1
+		) as table2				
+		where				
+		recNum between (#{section}-1)*100+ (#{pageNum}-1)*10+1 and (#{section}-1)*100+(#{pageNum})*10	      		    
+	</select>
+	
+	<!--사업자 예매 내역 페이지 -->
+	<select id="b_myReservation" resultMap="orderResult"   parameterType="java.util.HashMap">
+		SELECT *
+		FROM (
+    	SELECT ROW_NUMBER() OVER (ORDER BY orderTicketing DESC) AS recNum, table1.*
+    	FROM (
+        SELECT `order`.*, goods.goods_id AS goods_goods_id -- 열 별칭 사용
+        FROM `order`
+        INNER JOIN goods ON `order`.goods_id = goods.goods_id
+        WHERE DATE_FORMAT(orderTicketing, '%Y-%m-%d') BETWEEN #{beginDate} AND #{endDate}
+        AND goods.mem_id = #{mem_id}
+        <if test="search_type=='all' and  search_type != null" >
+			AND (order.goods_name=#{search_word} OR order.goods_Date=#{search_word} OR order.order_No=#{search_word})
+		</if>
+        <if test="search_type=='goods_name' and  search_type != null">
+            AND order.goods_name = #{search_word}
+        </if>
+        <if test="search_type=='goods_Date' and search_type != null">
+            AND order.goods_Date = #{search_word}
+        </if>
+        <if test="search_type=='order_No' and search_type != null">
+            AND order.order_No = #{search_word}
+        </if>
+        ORDER BY orderTicketing DESC
+    	) AS table1
+		) AS table2
+		WHERE recNum BETWEEN (#{section} - 1) * 100 + (#{pageNum} - 1) * 10 + 1 AND (#{section} - 1) * 100 + (#{pageNum}) * 10;		    
+	</select>
+	
+	<select id="totalResNum" resultType="int" parameterType="String">
+		select count(order_no) from `order` where mem_id=#{mem_id}
+	</select>
+	
+	<select id="totalBResNum" resultType="int" parameterType="String">
+		SELECT COUNT(order_no) FROM (
+	    SELECT DISTINCT `order`.order_no 
+	    FROM `order` 
+	    INNER JOIN goods ON `order`.goods_id = goods.goods_id 
+	    WHERE goods.mem_id = #{mem_id}
+		) AS t_order;
+	</select>
+</mapper>
+
+	

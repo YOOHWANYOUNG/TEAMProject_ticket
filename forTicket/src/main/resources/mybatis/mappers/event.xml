@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.forTicket.event.dao.EventDAO">
+	<resultMap id="eventResult" type="eventVO">
+		<result property="event_no" column="event_no" />
+		<result property="event_name" column="event_name" />
+		<result property="event_startDate" column="event_startDate" />
+		<result property="event_endDate" column="event_endDate" />
+		<result property="event_type" column="event_type" />
+		<result property="event_detail" column="event_detail" />
+		<result property="event_status" column="event_status" />
+		<result property="mem_id" column="mem_id" />
+		<result property="event_finalDate" column="event_finalDate" />
+		<result property="event_creDate" column="event_creDate" />
+		<result property="goods_id" column="goods_id" />
+		<result property="event_fileName" column="fileName" />
+	</resultMap>
+	
+	<resultMap id="imageResult" type="E_imageFileVO">
+	   <result property="image_id" column="image_id" />
+	   <result property="event_no" column="event_no" />
+	   <result property="fileName" column="fileName" />
+	   <result property="fileType" column="fileType" />
+	   <result property="reg_id" column="reg_id" />
+	</resultMap>
+	
+	<select id="selectAllEventList" resultMap="eventResult">
+		<![CDATA[
+			SELECT g.*, d.fileName FROM event g, event_detail_images d 
+			where d.fileType='main_image' and g.event_no=d.event_no
+			ORDER BY event_creDate DESC
+		]]>
+	</select>
+	
+	<select id="selectAdminEventList" resultMap="eventResult"
+		parameterType="java.util.Map">
+			select * from (
+			select  ROW_NUMBER() OVER (ORDER BY event_creDate DESC) as recNum, ttt.*
+			from (select * from event where  date_format(event_creDate,'%Y-%m-%d')  between #{beginDate} and #{endDate}
+				<if test="search_type=='goods_name' and  search_type != null">
+					AND goods_name=#{search_word}
+				</if>
+				<if test="search_type=='event_name' and  search_type != null">
+					AND event_name=#{search_word}
+				</if>
+				<if test="search_type=='event_type' and  search_type != null">
+					AND event_type=#{search_word}
+				</if>
+			order by event_creDate desc ) as ttt ) as tttt where 
+			recNum between (#{section}-1)*100+ (#{pageNum}-1)*10+1 and (#{section}-1)*100+(#{pageNum})*10
+	</select>
+	
+	<select id="selectBusinessEventList" resultMap="eventResult"
+		parameterType="java.util.Map">
+			select * from (
+			select  ROW_NUMBER() OVER (ORDER BY event_creDate DESC) as recNum, ttt.*
+			from (select * from event where mem_id=#{mem_id} and date_format(event_creDate,'%Y-%m-%d')  between #{beginDate} and #{endDate}
+				<if test="search_type=='goods_name' and  search_type != null">
+					AND goods_name=#{search_word}
+				</if>
+				<if test="search_type=='event_name' and  search_type != null">
+					AND event_name=#{search_word}
+				</if>
+				<if test="search_type=='event_type' and  search_type != null">
+					AND event_type=#{search_word}
+				</if>
+			order by event_creDate desc ) as ttt ) as tttt where 
+			recNum between (#{section}-1)*100+ (#{pageNum}-1)*10+1 and (#{section}-1)*100+(#{pageNum})*10
+	</select>
+	
+	<select id="selectEventInfo" resultType="eventVO" parameterType="int">
+		<![CDATA[
+			SELECT * FROM event WHERE event_no=#{event_no}
+		]]>
+	</select>
+
+	<select id="selectEventDetail" resultMap="eventResult"	parameterType="int">
+	    <![CDATA[
+		    select g.*, d.fileName from event g, event_detail_images d
+	        where g.event_no=d.event_no
+	        and d.fileType='main_image'
+	        and g.event_no=#{event_no}
+    	]]>
+	</select>
+	
+	<select id="selectEventNo" resultType="int" parameterType="java.util.Map">
+		<![CDATA[
+			SELECT event_no FROM event WHERE mem_id=#{mem_id} AND event_name=#{event_name}
+		]]>
+	</select>
+
+	<insert id="insertEvent" parameterType="java.util.Map">
+		<![CDATA[
+			INSERT INTO event(event_name, event_startDate, event_endDate, event_type, event_detail, mem_id, event_finalDate, goods_id) 
+			VALUES(#{event_name}, #{event_startDate}, #{event_endDate}, #{event_type}, #{event_detail}, #{mem_id}, #{event_finalDate}, #{goods_id})
+		]]>
+	</insert>
+
+	<update id="updateEvent" parameterType="java.util.Map">
+		<![CDATA[
+			UPDATE event SET event_name=#{event_name}, event_startDate=#{event_startDate}, event_endDate=#{event_endDate}, event_type=#{event_type}, event_detail=#{event_detail}, event_status=#{event_status}, event_finalDate=#{event_finalDate}, goods_id=#{goods_id} WHERE event_no=#{event_no}
+		]]>
+	</update>
+	
+	<update id="updateEventStatus" parameterType="java.util.Map" >
+		<![CDATA[update event set]]>
+			<if test=" event_status!='' and event_status!=null">
+				event_status=#{event_status}
+			</if>
+		<![CDATA[where 
+		event_no=#{event_no}]]>
+	</update>
+
+	<delete id="deleteEvent" parameterType="int">
+		<![CDATA[
+			DELETE FROM event WHERE event_no=#{event_no}
+		]]>
+	</delete>
+
+	<select id="selectEventImageFileList" resultMap="imageResult"   parameterType="int"  >
+	    <![CDATA[
+		    	select * from  event_detail_images 
+		    	where fileType!='main_image'
+			    and event_no=#{event_no}
+			    order by image_id asc
+    	]]>
+	</select>
+	
+	<select id="selectEventImageFileList_2" resultMap="imageResult"   parameterType="int"  >
+	    <![CDATA[
+		    	select * from  event_detail_images 
+		    	where 
+			    event_no=#{event_no}
+			    order by image_id asc
+    	]]>
+	</select>
+	
+	<insert id="insertEventImage" parameterType="E_imageFileVO">
+		<![CDATA[
+			INSERT INTO event_detail_images(image_id, event_no, fileName, fileType, reg_id) VALUES(#{image_id}, #{event_no}, #{fileName}, #{fileType}, #{reg_id})
+		]]>
+	</insert>
+	
+	<update id="updateEventImage" parameterType="E_imageFileVO">
+		<![CDATA[
+		update event_detail_images
+		set fileName=#{fileName}
+		where	 
+		event_no=#{event_no} and image_id=#{image_id}
+		]]>
+	</update>
+	
+	<delete id="deleteEventImage" parameterType="int">
+		<![CDATA[
+		delete from event_detail_images
+		where image_id=#{image_id}
+		]]>
+	</delete>
+	
+	<delete id="deleteAllEventImage" parameterType="int">
+		  <![CDATA[
+		  delete from event_detail_images
+		  where event_no=#{event_no}
+		  ]]>
+	</delete>
+	
+	<insert id="insertEventApply" parameterType="java.util.Map">
+		<![CDATA[
+			INSERT INTO event_applied(event_no, mem_id) VALUES(#{event_no}, #{mem_id})
+		]]>
+	</insert>
+	
+	<select id="totalEvent" resultType="int">
+		SELECT count(event_no) FROM event
+	</select>
+	
+	<select id="totalEventById" resultType="int" parameterType="String">
+		SELECT count(event_no) FROM event WHERE mem_id=#{mem_id}
+	</select>
+</mapper>

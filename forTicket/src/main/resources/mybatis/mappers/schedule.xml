@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.forTicket.schedule.dao.ScheduleDAO">
+	<resultMap id="scheduleResult" type="scheduleVO">
+		<result property="s_no" column="s_no" />
+		<result property="goods_id" column="goods_id" />
+		<result property="theater_id" column="theater_id" />
+		<result property="s_dateTime" column="s_date" />
+		<result property="seats" column="seats" />
+		<result property="goods_name" column="goods_name" />
+		<result property="theater_name" column="theater_name"/>
+		<result property="reg_id" column="reg_id"/>
+	</resultMap>
+	
+	<select id="selectSchedule" resultType="scheduleVO" parameterType="java.util.Map">
+		SELECT s.s_no, s.goods_id, s.theater_id, date_format(s.s_date,'%Y-%m-%d %H:%i') AS s_date, s.seats, s.reg_id, g.goods_name FROM schedule s, goods g
+		WHERE s.goods_id = g.goods_id AND (theater_id=#{theater_id} AND date_format(s_date,'%Y-%m-%d')=#{s_date})
+	</select>
+	
+	<select id="selectSchedule_order" resultType="scheduleVO" parameterType="java.util.Map">
+		SELECT s.s_no, s.goods_id, s.theater_id, date_format(s.s_date,'%Y-%m-%d %H:%i') AS s_date, s.seats, g.goods_name FROM schedule s, goods g
+		WHERE s.goods_id = g.goods_id AND date_format(s_date,'%Y-%m-%d')=#{s_date} order by s_date asc
+	</select>
+	
+	<select id="scheduleInfo" resultType="scheduleVO" parameterType="java.util.Map">
+		SELECT date_format(s.s_date,'%Y-%m-%d %H:%i') AS s_date, seats FROM schedule
+		WHERE goods_id = #{goods_id} AND date_format(s_date,'%Y-%m-%d')=#{s_date}
+	</select>
+	
+	<select id="selectScheduleByGoods" resultMap="scheduleResult" parameterType="java.util.Map">
+	    SELECT * 
+	    FROM (
+	        SELECT ROW_NUMBER() OVER (ORDER BY s_date DESC) as recNum, ttt.* 
+	        FROM (
+	            SELECT s.s_no, s.goods_id, s.theater_id, DATE_FORMAT(s.s_date, '%Y-%m-%d %H:%i') AS s_date, s.seats, s.reg_id, g.goods_name, t.theater_name 
+	            FROM schedule s, goods g, theater t 
+	            WHERE s.reg_id = #{mem_id} AND s.goods_id = g.goods_id AND t.theater_name = g.goods_place
+	            AND DATE_FORMAT(s_date, '%Y-%m-%d') BETWEEN #{beginDate} AND #{endDate}
+	            <if test="search_type != null">
+	                <choose>
+	                    <when test="search_type == 'goods_id'">
+	                        AND goods_id = #{search_word}
+	                    </when>
+	                    <when test="search_type == 'goods_name'">
+	                        AND goods_name = #{search_word}
+	                    </when>
+	                    <when test="search_type == 'theater_name'">
+	                        AND theater_name = #{search_word}
+	                    </when>
+	                </choose>
+	            </if>
+	            ORDER BY s_date DESC
+	        ) as ttt
+	    ) as tttt
+	    WHERE recNum BETWEEN (#{section}-1)*100 + (#{pageNum}-1)*10 + 1 AND (#{section}-1)*100 + (#{pageNum})*10
+	    </select>
+	
+	<select id="selectAllSchedule" resultMap="scheduleResult" parameterType="java.util.Map">
+	    SELECT * 
+	    FROM (
+	        SELECT ROW_NUMBER() OVER (ORDER BY s_date DESC) as recNum, ttt.* 
+	        FROM (
+	            SELECT s.s_no, s.goods_id, s.theater_id, DATE_FORMAT(s.s_date, '%Y-%m-%d %H:%i') AS s_date, s.seats, s.reg_id, g.goods_name, t.theater_name 
+	            FROM schedule s, goods g, theater t 
+	            WHERE s.goods_id = g.goods_id AND t.theater_name = g.goods_place
+	            AND DATE_FORMAT(s_date, '%Y-%m-%d') BETWEEN #{beginDate} AND #{endDate}
+	            <if test="search_type != null">
+	                <choose>
+	                    <when test="search_type == 'goods_id'">
+	                        AND goods_id = #{search_word}
+	                    </when>
+	                    <when test="search_type == 'goods_name'">
+	                        AND goods_name = #{search_word}
+	                    </when>
+	                    <when test="search_type == 'theater_name'">
+	                        AND theater_name = #{search_word}
+	                    </when>
+	                </choose>
+	            </if>
+	            ORDER BY s_date DESC
+	        ) as ttt
+	    ) as tttt
+	    WHERE recNum BETWEEN (#{section}-1)*100 + (#{pageNum}-1)*10 + 1 AND (#{section}-1)*100 + (#{pageNum})*10
+	</select>
+	
+	<insert id="insertSchedule" parameterType="java.util.Map">
+		INSERT INTO schedule(goods_id, theater_id, s_date, seats, reg_id)
+		VALUES(#{goods_id}, #{theater_id}, date_format(#{s_date},'%Y-%m-%d %H:%i'), #{seats}, #{reg_id})
+	</insert>
+	
+	<delete id="deleteSchedule" parameterType="int">
+		DELETE FROM schedule WHERE s_no=#{s_no}
+	</delete>
+	
+	<update id="newOrder" parameterType="int">
+		UPDATE schedule
+		SET seats=seats-#{seats} WHERE s_no=#{s_no}
+	</update>
+	
+	<update id="cancelOrder" parameterType="int">
+		UPDATE schedule
+		SET seats=seats+#{seats} WHERE s_no=#{s_no}
+	</update>
+	
+	<select id="totalSchedule" resultType="int">
+		SELECT count(s_no) FROM schedule
+	</select>
+	
+	<select id="totalScheduleById" resultType="int" parameterType="String">
+		SELECT count(s_no) FROM schedule WHERE reg_id=#{mem_id}
+	</select>
+</mapper>

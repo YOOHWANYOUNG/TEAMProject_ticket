@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.forTicket.center.dao.CenterDAO">
+	<resultMap id="centerResult" type="CenterVO">
+		<result property="center_No" column="center_No" />
+		<result property="type_No" column="type_No" />
+		<result property="mem_id" column="mem_id" />
+		<result property="center_Type" column="center_Type" />
+		<result property="center_Title" column="center_Title" />
+		<result property="center_Detail" column="center_Detail" />
+		<result property="center_creDate" column="center_creDate" />
+		<result property="center_update" column="center_update" />
+	</resultMap>
+	
+	<resultMap id="questionResult" type="QuestionVO">
+		<result property="q_Num" column="q_Num" />
+		<result property="q_Mem_Num" column="q_Mem_Num" />
+		<result property="mem_id" column="mem_id" />
+		<result property="q_Status" column="q_Status" />
+		<result property="q_Title" column="q_Title" />
+		<result property="q_content" column="q_content" />
+		<result property="q_creDate" column="q_creDate" />
+		<result property="a_id" column="a_id" />
+		<result property="a_reply" column="a_reply" />
+		<result property="a_creDate" column="a_creDate" />
+	</resultMap>		
+	
+	<!-- 글 작성 -->
+	<insert id="addWrite"  parameterType="CenterVO">
+		<![CDATA[
+			insert into
+			center(mem_id, center_Type, center_Title, center_Detail)
+			values(#{mem_id}, #{center_Type}, #{center_Title}, #{center_Detail})
+		]]>      
+	</insert>
+		
+	<!-- 고객센터 상세화면 -->
+	<select id="view" resultType="CenterVO" parameterType="int">
+		<![CDATA[
+			select * from center where center_No = #{center_No}
+		]]>  
+	</select>
+	
+	<!-- 상세화면 수정 -->
+	<update id="edit" parameterType="java.util.Map">
+		update center set center_Type=#{center_Type}, center_Title=#{center_Title}, center_Detail=#{center_Detail}
+		where center_No=#{center_No}
+	</update>
+	
+	<!-- 고객센터 글 삭제 -->
+	<delete id="delete" parameterType="int">
+		<![CDATA[
+		delete from center where center_No = #{center_No} 
+		]]>  
+	</delete>
+	
+	<!--환불 공지 목록 -->
+	<select id="re_list" resultMap="centerResult"  parameterType="java.util.HashMap">
+		<![CDATA[
+		select * from (
+			select ROW_NUMBER() OVER (ORDER BY center_creDate DESC) as recNum, table1.*
+			from (
+				SELECT 
+					center_No
+					, mem_id
+					, center_Type
+					, center_Title
+					, center_Detail
+					, center_creDate
+					, center_update
+					, ROW_NUMBER() OVER (PARTITION BY CENTER_TYPE ORDER BY center_creDate ASC) AS type_No 
+				FROM CENTER
+				WHERE center_Type='refund'
+				order by center_creDate desc
+			 	) as table1
+				) as table2				
+			where				
+		recNum between (#{section}-1)*100+ (#{pageNum}-1)*10+1 and (#{section}-1)*100+(#{pageNum})*10		
+		]]>      
+	</select>
+	
+	<!-- 공지 목록 -->
+	<select id="no_list" resultMap="centerResult"  parameterType="java.util.HashMap">
+		<![CDATA[
+		select * from (
+			select ROW_NUMBER() OVER (ORDER BY center_creDate DESC) as recNum, table1.*
+			from (
+				SELECT 
+					center_No
+					, mem_id
+					, center_Type
+					, center_Title
+					, center_Detail
+					, center_creDate
+					, center_update
+					, ROW_NUMBER() OVER (PARTITION BY CENTER_TYPE ORDER BY center_creDate ASC) AS type_No 
+				FROM CENTER
+				WHERE center_Type='notice'
+				order by center_creDate desc
+			 	) as table1
+				) as table2				
+			where				
+		recNum between (#{section}-1)*100+ (#{pageNum}-1)*10+1 and (#{section}-1)*100+(#{pageNum})*10		
+		]]>      
+	</select>
+
+	<!--faq 공지 목록 -->
+	<select id="faq_list" resultMap="centerResult"  parameterType="java.util.HashMap">
+		<![CDATA[
+		select * from (
+			select ROW_NUMBER() OVER (ORDER BY center_creDate DESC) as recNum, table1.*
+			from (
+				SELECT 
+					center_No
+					, mem_id
+					, center_Type
+					, center_Title
+					, center_Detail
+					, center_creDate
+					, center_update
+					, ROW_NUMBER() OVER (PARTITION BY CENTER_TYPE ORDER BY center_creDate ASC) AS type_No 
+				FROM CENTER
+				WHERE center_Type='faq'
+				order by center_creDate desc
+			 	) as table1
+				) as table2				
+			where				
+		recNum between (#{section}-1)*100+ (#{pageNum}-1)*10+1 and (#{section}-1)*100+(#{pageNum})*10		
+		]]>      
+	</select>
+	
+	<!--1:1문의페이지 회원 -->
+	<select id="questionList" resultMap="questionResult" parameterType="java.util.HashMap">
+		<![CDATA[
+			select
+				q_Num
+				, mem_id
+				, q_Status
+				, q_Title
+				, q_content
+				, q_creDate
+				, a_reply
+				, a_creDate
+				, ROW_NUMBER() OVER (PARTITION BY mem_id ORDER BY q_creDate ASC) AS q_mem_No
+				from question
+			where
+			mem_id=#{mem_id}
+			order by q_creDate DESC
+		]]>	
+	</select>
+	
+	<!-- 1:1 작성 -->
+	<insert id="addQue"  parameterType="QuestionVO">
+		<![CDATA[
+			insert into
+			question(mem_id, q_Title, q_content)
+			values(#{mem_id}, #{q_Title}, #{q_content})
+		]]>      
+	</insert>
+	
+	<!-- 1:1 글 삭제 -->
+	<delete id="q_delete" parameterType="int">
+		<![CDATA[
+		delete from question where q_Num = #{q_Num} 
+		]]>  
+	</delete>
+	
+	<!--1:1문의페이지 관리자 -->
+	<select id="a_questionList" resultMap="questionResult" parameterType="java.util.HashMap">
+		<![CDATA[
+		select * from (
+			select ROW_NUMBER() OVER (ORDER BY q_creDate DESC) as recNum, table1.*
+			from (
+				select
+					q_Num
+					, mem_id
+					, q_Status
+					, q_Title
+					, q_content
+					, q_creDate
+					, a_reply
+					, a_creDate
+					from question
+				order by q_creDate DESC
+				) as table1
+				) as table2				
+			where				
+		recNum between (#{section}-1)*100+ (#{pageNum}-1)*10+1 and (#{section}-1)*100+(#{pageNum})*10		
+		]]>	
+	</select>
+	
+	<!-- 1:1 답변페이지 이동 -->
+	<select id="q_Num" resultType="QuestionVO" parameterType="int">
+		<![CDATA[
+			select * from question
+			where
+			q_Num=#{q_Num}
+		]]>	
+	</select>	
+
+	<!-- 1:1 답변 추가 -->
+	<update id="update_reply" parameterType="QuestionVO">
+		<![CDATA[
+			update 
+			question
+			set
+			a_reply = #{a_reply}
+			, q_Status = #{q_Status}
+			where
+			q_Num = #{q_Num}
+		]]>      
+	</update>
+	
+	<!-- 1:1 글 삭제 -->
+	<delete id="a_delete" parameterType="int">
+		<![CDATA[
+		delete from question where q_Num = #{q_Num} 
+		]]>  
+	</delete>
+	
+	<select id="totalRefundNum" resultType="int">
+		select count(center_No) from center where center_Type='refund'
+	</select>
+	
+	<select id="totalNoticeNum" resultType="int">
+		select count(center_No) from center where center_Type='notice'
+	</select>
+	
+	<select id="totalFAQNum" resultType="int">
+		select count(center_No) from center where center_Type='faq'
+	</select>
+
+</mapper>
